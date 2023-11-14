@@ -4,6 +4,7 @@ module.exports = (server) => {
     server.route("/posts")
     .get(postController.listAllPosts)
     .post(postController.createAPost);
+
     server.route("/posts/:id")
     .get(postController.getPost)
     .put(postController.updatePost)
