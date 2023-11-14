@@ -1,41 +1,71 @@
+const asyncHandler = require('express-async-handler')
 const Post = require("../models/postModel");
 
-exports.listAllPosts = async(req, res) => {
-    /* ES5
-    Post.find({}, (error, posts) => {
-            if(error) {
-                res.status(500);
-                console.log(error);
-                res.json({message: "Erreur serveur"});
-            } else {
-                res.status(200);
-                res.json(posts);
-            }
-        })
-    */
-    
-    // ES6
-    try {
+exports.listAllPosts =asyncHandler(
+    async(req, res) => {
         const posts = await Post.find({});
-        res.status(200);
-        res.json(posts);
+            res.status(200);
+            res.json(posts);
+    
+        }) 
 
-    } catch (error) {
-        res.status(500);
-        console.log(error);
-        res.json({ message: "Erreur serveur." })
-    }
-}
-
-exports.createAPost = async (req, res) => {
-    const newPost = new Post(req.body);
-    try {
+exports.createAPost =asyncHandler(
+    async (req, res) => {
+        const newPost = new Post(req.body);
         const post = await newPost.save();
         res.status(201);
         res.json(post);
-    } catch (error) {
-        res.status(500);
-        console.log(error);
-        res.json({ message: "Erreur serveur." })
+        
     }
-}
+)
+
+exports.getPost =asyncHandler(
+    async (req, res) => {   
+        const post = await Post.findById(req.params.id)
+    
+        if (post) {
+            res.status(200).json(post)
+        } else {
+            res.status(404)
+            throw new Error('Post not found')
+        }  
+    }
+) 
+
+
+exports.updatePost =asyncHandler(
+    async (req, res) => {
+         const {
+             title,
+             content,
+           } = req.body
+         
+           const post = await Post.findById(req.params.id)
+         
+           if (post) {
+             post.title = title
+             post.content = content
+            
+         
+             const updatedPost = await post.save()
+             res.json(updatedPost)
+           } else {
+             res.status(404)
+             throw new Error('Post not found')
+           }
+        }   
+)
+  
+exports.deletePost =asyncHandler(
+    async (req, res) => {
+
+         const post = await Post.findById(req.params.id)
+         if (post) {
+           await Post.findByIdAndDelete(req.params.id)
+           res.json({ message: 'Post removed' })
+         } else {
+           res.status(404)
+           throw new Error('Post not found')
+         }
+        }
+) 
