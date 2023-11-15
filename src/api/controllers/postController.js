@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const Post = require("../models/postModel");
+const textApiProvider=require('../providers/textApiProvider')
 
 exports.listAllPosts =asyncHandler(
     async(req, res) => {
@@ -12,6 +13,11 @@ exports.listAllPosts =asyncHandler(
 exports.createAPost =asyncHandler(
     async (req, res) => {
         const newPost = new Post(req.body);
+        let randomTextPromise=textApiProvider.getRandomText()
+        let response=await randomTextPromise;
+        if(!newPost.content){
+            newPost.content=response
+        }
         const post = await newPost.save();
         res.status(201);
         res.json(post);
