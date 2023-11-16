@@ -10,10 +10,14 @@ let postSchema = new Schema({
         type: String,
         required: 'Le contenu est requis'
     },
-    created_at: {
-        type: Date,
-        default: Date.now
-    }
-});
+    creator:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User',
+     }
+    },
+    {
+     timestamps: true,
+    });
 
 module.exports = mongoose.model('Post', postSchema);

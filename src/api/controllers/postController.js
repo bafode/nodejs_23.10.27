@@ -12,7 +12,12 @@ exports.listAllPosts =asyncHandler(
 
 exports.createAPost =asyncHandler(
     async (req, res) => {
-        const newPost = new Post(req.body);
+        const {title,content}=req.body
+        const newPost = new Post({
+            title:title,
+            content:content,
+            creator:req.user._id
+        });
         let randomTextPromise=textApiProvider.getRandomText()
         let response=await randomTextPromise;
         if(!newPost.content){
@@ -47,18 +52,22 @@ exports.updatePost =asyncHandler(
            } = req.body
          
            const post = await Post.findById(req.params.id)
-         
-           if (post) {
-             post.title = title
-             post.content = content
-            
-         
-             const updatedPost = await post.save()
-             res.json(updatedPost)
-           } else {
-             res.status(404)
-             throw new Error('Post not found')
+           if(!post){
+            res.status(404)
+            throw new Error('Post not found')
            }
+
+           const ownedPost=await Post.findOne({_id:req.params.id,creator:req.user._id})
+
+           if(!ownedPost){
+            res.status(404)
+            throw new Error('Not Autorized to edit this post')
+           }
+         
+           post.title = title
+           post.content = content
+           const updatedPost = await post.save()
+           res.status(200).json(updatedPost)
         }   
 )
   

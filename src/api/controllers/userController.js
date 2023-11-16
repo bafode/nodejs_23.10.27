@@ -4,7 +4,7 @@ const User=require('../models/userModel.js')
 
 
 
-exports.authUser = asyncHandler(async (req, res) => {
+exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body
 
   const user = await User.findOne({ email })
@@ -14,7 +14,8 @@ exports.authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id),
+      isAdmin: user.isAdmin,
+      token: generateToken(user._id), 
     })
   } else {
     res.status(401)
@@ -33,7 +34,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists')
   }
 
-  const user = await User.create({
+  const user = await User.create({ 
     name,
     email,
     password,
@@ -44,6 +45,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
       token: generateToken(user._id),
     })
   } else {
@@ -61,6 +63,7 @@ exports.getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
     })
   } else {
     res.status(404)
@@ -84,6 +87,7 @@ exports.updateUserProfile = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
       token: generateToken(updatedUser._id),
     })
   } else {
@@ -133,6 +137,7 @@ exports.updateUser = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
     })
   } else {
     res.status(404)

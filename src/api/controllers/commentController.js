@@ -13,9 +13,10 @@ exports.createComment =asyncHandler(
     async (req, res) => {
         const comment=req.body
         comment.post_id=req.params.postId
-        const alreadyExist=await Comment.findOne({name:comment.name})
-        if(alreadyExist){
-            throw new Error(`${comment.name} has already commented this post`)
+        comment.user=req.user._id
+        const alreadyExist=await Comment.findOne({user:req.user._id})
+        if(alreadyExist &&req.user.isAdmin===false){
+            throw new Error(`${req.user.name} has already commented this post`)
         }
         const newComment = new Comment(comment);
         const createdComment = await newComment.save();
@@ -48,17 +49,21 @@ exports.updateComment =asyncHandler(
          
            const comment = await Comment.findById(req.params.id)
          
-           if (comment) {
-             comment.name = name
-             comment.message = message
-            
-         
-             const updatedComment = await comment.save()
-             res.json(updatedComment)
-           } else {
-             res.status(404)
-             throw new Error('Comment not found')
+           if (!comment) {
+            res.status(404)
+            throw new Error('Comment not found')
+             
            }
+
+           if(req.user._id.toString()!==comment.user.toString()&&req.user.isAdmin!==true){
+            res.status(400)
+            throw new Error('Not Authorize to edit this comment')
+           }
+
+           comment.name = name
+           comment.message = message
+           const updatedComment = await comment.save()
+           res.status(200).json(updatedComment)
         }   
 )
   
@@ -66,12 +71,20 @@ exports.deleteComment =asyncHandler(
     async (req, res) => {
 
          const comment = await Comment.findById(req.params.id)
-         if (comment) {
+         if (!comment) {
+            res.status(404)
+            throw new Error('Comment not found')
+           
+          }
+
+        
+           if(req.user._id.toString()!==comment.user.toString()&&req.user.isAdmin!==true){
+            res.status(400)
+            throw new Error('Not Authorize to delete this comment')
+           }
+
            await Comment.findByIdAndDelete(req.params.id)
            res.json({ message: 'Comment removed' })
-         } else {
-           res.status(404)
-           throw new Error('Comment not found')
-         }
+         
         }
 ) 

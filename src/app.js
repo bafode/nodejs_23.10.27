@@ -4,6 +4,7 @@ const hostname = "0.0.0.0";
 const port = 3000
 
 dotenv.config()
+
 const server = express();
 
 const mongoose = require("mongoose");

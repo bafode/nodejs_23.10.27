@@ -1,12 +1,15 @@
 module.exports = (server) => {
     const postController = require("../controllers/postController");
+    const authMiddleware=require("../middleware/authMiddleware")
     
     server.route("/posts")
+    .all(authMiddleware.protect)
     .get(postController.listAllPosts)
-    .post(postController.createAPost);
+    .post(authMiddleware.admin,postController.createAPost);
 
     server.route("/posts/:id")
+    .all(authMiddleware.protect)
     .get(postController.getPost)
-    .put(postController.updatePost)
-    .delete(postController.deletePost)
+    .put(authMiddleware.admin,postController.updatePost)
+    .delete(authMiddleware.admin,postController.deletePost)
 }
