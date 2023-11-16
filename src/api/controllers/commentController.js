@@ -3,7 +3,17 @@ const Comment = require("../models/commentModel");
 
 exports.listAllComments =asyncHandler(
     async(req, res) => {
-        const comments = await Comment.find({post_id:req.params.postId});
+        const comments = await Comment.find({post_id:req.params.postId})
+        .populate([
+            {path:'user',
+            model:'User',
+            select:"name email"
+            },
+            {path:'post_id',
+            model:'Post',
+            select:"title"
+            },
+        ]);
             res.status(200);
             res.json(comments);
     
@@ -29,6 +39,16 @@ exports.createComment =asyncHandler(
 exports.getComment =asyncHandler(
     async (req, res) => {   
         const comment = await Comment.findById(req.params.id)
+        .populate([
+            {path:'user',
+            model:'User',
+            select:"name email"
+            },
+            {path:'post_id',
+            model:'Post',
+            select:"title"
+            },
+        ]);
     
         if (comment) {
             res.status(200).json(comment)

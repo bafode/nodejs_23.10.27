@@ -4,9 +4,14 @@ const textApiProvider=require('../providers/textApiProvider')
 
 exports.listAllPosts =asyncHandler(
     async(req, res) => {
-        const posts = await Post.find({});
-            res.status(200);
-            res.json(posts);
+        const posts = await Post.find({})
+        .populate(
+            {path:'creator',
+            model:'User',
+            select:"name email"}
+            );
+            
+        res.status(200).json(posts);
     
         }) 
 
@@ -33,6 +38,11 @@ exports.createAPost =asyncHandler(
 exports.getPost =asyncHandler(
     async (req, res) => {   
         const post = await Post.findById(req.params.id)
+        .populate(
+            {path:'creator',
+            model:'User',
+            select:"name email"}
+            );
     
         if (post) {
             res.status(200).json(post)
